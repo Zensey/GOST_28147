@@ -1,4 +1,5 @@
 /*
+ * This is a simple implementation of cipher Magma defined in GOST 28147-89
  * created by Anton Litvinov
  * 05.08.2016
  *
@@ -29,19 +30,19 @@ const Default_SubstitutionBoxes = [
  *
  */
 
-function GOST_28147_89(key, sBox) {
+function GOST_28147(key, sBox) {
     this.key = key
     this.sBox = sBox|| Default_SubstitutionBoxes
     this.gamma = []
 }
 
 // gamma -- 2 UInt32
-GOST_28147_89.prototype.setGamma = function (gammaL, gammaH) {
+GOST_28147.prototype.setGamma = function (gammaL, gammaH) {
     this.gamma[0] = gammaL
     this.gamma[1] = gammaH
 }
 
-GOST_28147_89.prototype.execute_gammingMode = function (n_int32, block) {
+GOST_28147.prototype.execute_gammingMode = function (n_int32, block, encode) {
     if (n_int32 > 32) {
         n_int32 = 32;
     }
@@ -49,7 +50,7 @@ GOST_28147_89.prototype.execute_gammingMode = function (n_int32, block) {
     var f = [];
     for (var i = 0; i < (n_int32 + 1) * 8; i++) {
         if (i % 8 == 0) {
-            this.calcNewGamma(true);
+            this.calcNewGamma(encode);
             f[0] = this.gamma[0];
             f[1] = this.gamma[1];
         }
@@ -59,7 +60,7 @@ GOST_28147_89.prototype.execute_gammingMode = function (n_int32, block) {
     }
 }
 
-GOST_28147_89.prototype.calcNewGamma = function (encrypt) {
+GOST_28147.prototype.calcNewGamma = function (encrypt) {
     const C1 = 0x01010101;
     const C2 = 0x01010104;
 
@@ -77,7 +78,7 @@ GOST_28147_89.prototype.calcNewGamma = function (encrypt) {
     swapArray2(this.gamma);
 }
 
-GOST_28147_89.prototype.calcF = function (val_i32, subKey_i32) {
+GOST_28147.prototype.calcF = function (val_i32, subKey_i32) {
     val_i32 = (val_i32 + subKey_i32) & 0xffffffff;
     val_i32 = this.substitute(val_i32);
     val_i32 = (val_i32 << 11 | val_i32 >>> 21);
@@ -85,7 +86,7 @@ GOST_28147_89.prototype.calcF = function (val_i32, subKey_i32) {
     return val_i32;
 }
 
-GOST_28147_89.prototype.substitute = function (val_i32) {
+GOST_28147.prototype.substitute = function (val_i32) {
     var sBlock, index;
     var result = 0;
     for (var i = 0; i < 8; i++) {
@@ -102,7 +103,7 @@ GOST_28147_89.prototype.substitute = function (val_i32) {
     return result;
 }
 
-GOST_28147_89.prototype.getKeyIndex = function (i, encrypt) {
+GOST_28147.prototype.getKeyIndex = function (i, encrypt) {
     return encrypt ?
         ((i < 24) ? i % 8 : 7 - (i % 8)):
         ((i <  8) ? i % 8 : 7 - (i % 8))
@@ -114,4 +115,4 @@ function swapArray2(array_i32) {
     array_i32[0] = tmp;
 }
 
-module.exports = GOST_28147_89;
+module.exports = GOST_28147;

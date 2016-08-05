@@ -1,9 +1,7 @@
-# GOST_28147
+/**
+ * Created by zensey on 05.08.16.
+ */
 
-This is a simple implementation of cipher Magma defined in GOST 28147-89 in JavaScript language.
-
-Example of usage:
-```
 var GOST_28147 = require('./index')
 
 const _MeshingKeys_8i32 = [
@@ -41,4 +39,3 @@ console.log('cypher:', msg)
 eng.setGamma(gamma.readUInt32LE(0), gamma.readUInt32LE(4))
 eng.execute_gammingMode(8/4, msg, true);
 console.log('original:', msg)
-```
